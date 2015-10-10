@@ -3,6 +3,7 @@ using FirebirdSql.Data.FirebirdClient;
 using System.Data;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using Victors.VFBClientClasses;
 
 namespace Victors
 {
@@ -69,22 +70,51 @@ namespace Victors
 
             }
         }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields)
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields, Filter filter)
         {
-            grid.ColumnsCount = fields.Items.Count==0 ? dt.Columns.Count : fields.Items.Count;
+            bool EmptyFields = true;
+            try
+            {
+                EmptyFields = fields.Items.Count == 0;
+            }
+            catch { }
+
+            bool EmptyFilter = true;
+            try
+            {
+                EmptyFilter = filter.Items.Count == 0;
+            }
+            catch { }
+            //Columns filling
+            grid.ColumnsCount = EmptyFields ? dt.Columns.Count : fields.Items.Count;
             grid.FixedRows = 1;
             grid.Rows.Insert(0);
-            for (int i = 0; i < (fields.Items.Count == 0 ? dt.Columns.Count : fields.Items.Count); i++)
+            for (int i = 0; i < (EmptyFields ? dt.Columns.Count : fields.Items.Count); i++)
             {
-                grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.Items.Count == 0 ? dt.Columns[i].Caption : fields.Items[i].Caption);
+                grid[0, i] = new SourceGrid.Cells.ColumnHeader(EmptyFields ? dt.Columns[i].Caption : fields.Items[i].Caption);
             }
-
+            //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
             {
-                grid.Rows.Insert(r + 1);
-                for (int i = 0; i < (fields.Items.Count == 0 ? dt.Columns.Count : fields.Items.Count); i++)
+                bool RowChecked = EmptyFilter || EmptyFields;
+                if (!RowChecked)
                 {
-                    if (fields.Items.Count == 0) {
+                    RowChecked = true;
+                    for (int i = 0; i < filter.Items.Count || !RowChecked; i++)
+                    {
+                        int index = fields.IndexOfCaption(filter.Items[i].Caption);
+                        RowChecked = index==-1 || dt.Rows[r][fields.Items[index].Field]==filter.Items[i].Value;
+                    }
+                }
+                if (!RowChecked)
+                {
+                    continue;
+                }
+                    grid.Rows.Insert(r + 1);
+                for (int i = 0; i < (EmptyFields ? dt.Columns.Count : fields.Items.Count); i++)
+                {
+                    if (EmptyFields)
+                    {
                         grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i]);
                     }
                     else
@@ -96,41 +126,14 @@ namespace Victors
 
             grid.AutoSizeCells();
         }
+        
         public static void SGridFill(SourceGrid.Grid grid, DataTable dt)
         {
-            SGridFill(grid, dt, new Fields());
+            SGridFill(grid, dt, null, null);
         }
-        public class Fields
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields)
         {
-            public List<FieldItem> Items { get; set; }
-            public string Key { get; set; } //The FieldName of KeyValue
-            public Fields(string _key)
-            {
-                Key = _key;
-                Items = new List<FieldItem> { };
-            }
-            public Fields(List<FieldItem> _items, string _key) : this(_key)
-            {
-                Items = _items;
-            }
-            public Fields() : this("")
-            {
-
-            }
-            public Fields(List<FieldItem> _items) : this(_items.Count > 0 ? _items[0].Field : "", _items)
-            {
-
-            }
-            public Fields(string _key, List<FieldItem> _items) : this(_items, _key)
-            {
-                
-            }
+            SGridFill(grid, dt, fields, null);
         }
-        public class FieldItem
-        {
-            public string Caption { get; set; }
-            public string Field { get; set; }
-        } 
-
     }
 }
