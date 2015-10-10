@@ -4,7 +4,6 @@ using System.Data;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
-
 namespace Victors
 {
     static public class VFBClient
@@ -70,33 +69,38 @@ namespace Victors
 
             }
         }
-        public static void SGridFill(SourceGrid.Grid grid1, DataTable dt)
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields)
         {
-            grid1.ColumnsCount = dt.Columns.Count;
-            grid1.FixedRows = 1;
-            grid1.Rows.Insert(0);
-            for (int i = 0; i < dt.Columns.Count; i++)
+            grid.ColumnsCount = fields.Items.Count==0 ? dt.Columns.Count : fields.Items.Count;
+            grid.FixedRows = 1;
+            grid.Rows.Insert(0);
+            for (int i = 0; i < (fields.Items.Count == 0 ? dt.Columns.Count : fields.Items.Count); i++)
             {
-                grid1[0, i] = new SourceGrid.Cells.ColumnHeader(dt.Columns[i].Caption);
+                grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.Items.Count == 0 ? dt.Columns[i].Caption : fields.Items[i].Caption);
             }
 
             for (int r = 0; r < dt.Rows.Count; r++)
             {
-                grid1.Rows.Insert(r + 1);
-                for (int i = 0; i < dt.Columns.Count; i++)
+                grid.Rows.Insert(r + 1);
+                for (int i = 0; i < (fields.Items.Count == 0 ? dt.Columns.Count : fields.Items.Count); i++)
                 {
-                    grid1[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i]);
+                    if (fields.Items.Count == 0) {
+                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i]);
+                    }
+                    else
+                    {
+                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][fields.Items[i].Field]);
+                    }
                 }
             }
 
-            grid1.AutoSizeCells();
+            grid.AutoSizeCells();
         }
-        protected class FieldItem
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt)
         {
-            public string Caption { get; set; }
-            public string Field { get; set; }
-        } 
-        private class Fields
+            SGridFill(grid, dt, new Fields());
+        }
+        public class Fields
         {
             public List<FieldItem> Items { get; set; }
             public string Key { get; set; } //The FieldName of KeyValue
@@ -105,14 +109,28 @@ namespace Victors
                 Key = _key;
                 Items = new List<FieldItem> { };
             }
-            public Fields(string _key, List<FieldItem> _items) : this(_key)
-            {
-                Items = _items;
-            }
             public Fields(List<FieldItem> _items, string _key) : this(_key)
             {
                 Items = _items;
             }
+            public Fields() : this("")
+            {
+
+            }
+            public Fields(List<FieldItem> _items) : this(_items.Count > 0 ? _items[0].Field : "", _items)
+            {
+
+            }
+            public Fields(string _key, List<FieldItem> _items) : this(_items, _key)
+            {
+                
+            }
         }
+        public class FieldItem
+        {
+            public string Caption { get; set; }
+            public string Field { get; set; }
+        } 
+
     }
 }
