@@ -2,6 +2,7 @@
 using FirebirdSql.Data.FirebirdClient;
 using System.Data;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 
 namespace Victors
@@ -90,6 +91,28 @@ namespace Victors
 
             grid1.AutoSizeCells();
         }
-
+        protected class FieldItem
+        {
+            public string Caption { get; set; }
+            public string Field { get; set; }
+        } 
+        private class Fields
+        {
+            public List<FieldItem> Items { get; set; }
+            public string Key { get; set; } //The FieldName of KeyValue
+            public Fields(string _key)
+            {
+                Key = _key;
+                Items = new List<FieldItem> { };
+            }
+            public Fields(string _key, List<FieldItem> _items) : this(_key)
+            {
+                Items = _items;
+            }
+            public Fields(List<FieldItem> _items, string _key) : this(_key)
+            {
+                Items = _items;
+            }
+        }
     }
 }
