@@ -4,12 +4,12 @@ namespace Victors.VFBClientClasses
 {
     public class Fields
     {
-        public List<FieldItem> Items { get; set; }
-        public Fields(List<FieldItem> items)
+        public FieldItems Items { get; set; }
+        public Fields(FieldItems items)
         {
             Items = items;
         }
-        public Fields() : this(new List<FieldItem>())
+        public Fields() : this(new FieldItems())
         {
 
         }
@@ -27,6 +27,17 @@ namespace Victors.VFBClientClasses
             }
             catch { }
             return -1;
+        }
+    }
+    public class FieldItems : List<FieldItem>
+    {
+        public FieldItems(List<FieldItem> items) : base(items)
+        {
+            
+        }
+        public FieldItems() : base(new List<FieldItem>())
+        {
+
         }
     }
     public class FieldItem
@@ -50,12 +61,23 @@ namespace Victors.VFBClientClasses
 
     public class Filter
     {
-        public List<FilterItem> Items { get; set; }
-        public Filter(List<FilterItem> items)
+        public FilterItems Items { get; set; }
+        public Filter(FilterItems items)
         {
             Items = items;
         }
-        public Filter() : this(new List<FilterItem>())
+        public Filter() : this(new FilterItems())
+        {
+
+        }
+    }
+    public class FilterItems : List<FilterItem>
+    {
+        public FilterItems(List<FilterItem> items) : base(items)
+        {
+
+        }
+        public FilterItems() : base()
         {
 
         }
