@@ -13,6 +13,19 @@ namespace Victors
         {
 
         }
+        public Dictionary(string name, dynamic value) : this()
+        {
+            Add(name, value);
+        }
+        public Dictionary(List<string> names, List<dynamic> values) : this()
+        {
+            Add(names, values);
+        }
+        public Dictionary(List<dynamic> nvalues) : this()
+        {
+            Add(nvalues);
+        }
+
         protected Dictionary(DictionaryCollection items)
         {
             Items = items;
