@@ -4,7 +4,7 @@ namespace Victors
 {
     public class Dictionary
     {
-        protected DictionaryCollection Items { get; protected set; }
+        protected DictionaryCollection Items { get; set; }
         public List<string> Names { get; protected set; }
         public int Count => Items.Count;
         public bool isEmpty => !(Items.Count>0);
