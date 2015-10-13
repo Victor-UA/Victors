@@ -119,11 +119,11 @@ namespace Victors
         }
         public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Dictionary fields)
         {
-            SGridFill(grid, dt, fields, null);
+            SGridFill(grid, dt, fields, new Dictionary());
         }
         public static void SGridFill(SourceGrid.Grid grid, DataTable dt)
         {
-            SGridFill(grid, dt, null, null);
+            SGridFill(grid, dt, new Dictionary(), new Dictionary());
         }
     }
 }
