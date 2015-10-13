@@ -13,20 +13,36 @@ namespace Victors.VFBClientClasses
         {
 
         }
-        public int IndexOfCaption(string caption)
+        public dynamic this[int index]
         {
-            try
+            get
             {
-                for (int i = 0; i < Items.Count; i++)
+                return Items[index].Value;
+            }
+        }
+        public dynamic this[string caption]
+        {
+            get
+            {
+                foreach(FieldItem item in Items)
                 {
-                    if (Items[i].Caption == caption)
+                    if (item.Name.ToLower() == caption.ToLower())
                     {
-                        return i;
+                        return item.Value;
+                    }
+                }
+                throw new System.IndexOutOfRangeException("[" + caption + "]" + " didn't find");
+            }
+            set
+            { 
+                foreach (FieldItem item in Items)
+                {
+                    if (item.Name.ToLower() == caption.ToLower())
+                    {
+                        item.Value = value;
                     }
                 }
             }
-            catch { }
-            return -1;
         }
     }
     public class FieldItems : List<FieldItem>
@@ -42,12 +58,12 @@ namespace Victors.VFBClientClasses
     }
     public class FieldItem
     {
-        public string Caption { get; set; }
-        public string Field { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
         public FieldItem(string caption, string field)
         {
-            Caption = caption;
-            Field = field;
+            Name = caption;
+            Value = field;
         }
         public FieldItem() : this(null, null)
         {
@@ -70,6 +86,38 @@ namespace Victors.VFBClientClasses
         {
 
         }
+        public dynamic this[int index]
+        {
+            get
+            {
+                return Items[index].Value;
+            }
+        }
+        public dynamic this[string caption]
+        {
+            get
+            {
+                foreach (FilterItem item in Items)
+                {
+                    if (item.Name.ToLower() == caption.ToLower())
+                    {
+                        return item.Value;
+                    }
+                }
+                throw new System.IndexOutOfRangeException("[" + caption + "]" + " didn't find");
+            }
+            set
+            {
+                foreach (FilterItem item in Items)
+                {
+                    if (item.Name.ToLower() == caption.ToLower())
+                    {
+                        item.Value = value;
+                    }
+                }
+            }
+        }
+
     }
     public class FilterItems : List<FilterItem>
     {
@@ -84,11 +132,11 @@ namespace Victors.VFBClientClasses
     }
     public class FilterItem
     {
-        public string Caption { get; set; }
+        public string Name { get; set; }
         public dynamic Value { get; set; }
         public FilterItem(string caption, dynamic value)
         {
-            Caption = caption;
+            Name = caption;
             Value = value;
         }
         public FilterItem() : this(null, null)

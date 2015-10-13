@@ -70,40 +70,31 @@ namespace Victors
 
             }
         }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields, Filter filter)
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Dictionary fields, Dictionary filter)
         {
-            bool EmptyFields = true;
-            try
-            {
-                EmptyFields = fields.Items.Count == 0;
-            }
-            catch { }
-
-            bool EmptyFilter = true;
-            try
-            {
-                EmptyFilter = filter.Items.Count == 0;
-            }
-            catch { }
             //Columns filling
-            grid.ColumnsCount = EmptyFields ? dt.Columns.Count : fields.Items.Count;
+            grid.ColumnsCount = fields.isEmpty ? dt.Columns.Count : fields.Count;
             grid.FixedRows = 1;
             grid.Rows.Insert(0);
-            for (int i = 0; i < (EmptyFields ? dt.Columns.Count : fields.Items.Count); i++)
+            for (int i = 0; i < (fields.isEmpty ? dt.Columns.Count : fields.Count); i++)
             {
-                grid[0, i] = new SourceGrid.Cells.ColumnHeader(EmptyFields ? dt.Columns[i].Caption : fields.Items[i].Caption);
+                grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.isEmpty ? dt.Columns[i].Caption : fields.Names[i]);
             }
             //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
             {
-                bool RowChecked = EmptyFilter || EmptyFields;
+                bool RowChecked = filter.isEmpty || fields.isEmpty;
                 if (!RowChecked)
                 {
                     RowChecked = true;
-                    for (int i = 0; i < filter.Items.Count || !RowChecked; i++)
+                    for (int i = 0; i < filter.Count || !RowChecked; i++)
                     {
-                        int index = fields.IndexOfCaption(filter.Items[i].Caption);
-                        RowChecked = index==-1 || dt.Rows[r][fields.Items[index].Field]==filter.Items[i].Value;
+                        //int index = fields.IndexOfCaption(filter.Items[i].Caption);
+                        try
+                        {
+                            RowChecked = dt.Rows[r][fields[filter.Names[i]]] == filter[i];
+                        }
+                        catch { }
                     }
                 }
                 if (!RowChecked)
@@ -111,29 +102,28 @@ namespace Victors
                     continue;
                 }
                     grid.Rows.Insert(r + 1);
-                for (int i = 0; i < (EmptyFields ? dt.Columns.Count : fields.Items.Count); i++)
+                for (int i = 0; i < (fields.isEmpty ? dt.Columns.Count : fields.Count); i++)
                 {
-                    if (EmptyFields)
+                    if (fields.isEmpty)
                     {
                         grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i]);
                     }
                     else
                     {
-                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][fields.Items[i].Field]);
+                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][fields[i]]);
                     }
                 }
             }
 
             grid.AutoSizeCells();
         }
-        
+        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Dictionary fields)
+        {
+            SGridFill(grid, dt, fields, null);
+        }
         public static void SGridFill(SourceGrid.Grid grid, DataTable dt)
         {
             SGridFill(grid, dt, null, null);
-        }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Fields fields)
-        {
-            SGridFill(grid, dt, fields, null);
         }
     }
 }
