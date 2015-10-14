@@ -91,8 +91,7 @@ namespace Victors
         }
         public void Add(List<dynamic> nvalues)
         {
-            int i = 0;
-            foreach (dynamic nvalue in nvalues)
+            for (int i = 0; i < nvalues.Count;)
             {
                 try
                 {
@@ -137,8 +136,10 @@ namespace Victors
             }
         }
     }
+    /*
     public class DictionaryList : List<Dictionary>
     {
 
     }
+    */
 }

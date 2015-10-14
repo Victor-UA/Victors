@@ -7,10 +7,10 @@ using Victors.VFBClientClasses;
 
 namespace Victors
 {
-    static public class VFBClient
+    public class FBClient
     {
-        public static string ConnectionStr { get; set; } = @"character set=WIN1251;data source=localhost;initial catalog=D:\NASTROECHNAYA_2015.GDB ;user id=SYSDBA;password=masterkey";
-        public static DataTable QueryRecordsList(string SQL)
+        public string ConnectionStr { get; set; } = @"character set=WIN1251;data source=localhost;initial catalog=D:\NASTROECHNAYA_2015.GDB ;user id=SYSDBA;password=masterkey";
+        public DataTable QueryRecordsList(string SQL)
         {
             using (FbConnection fbc = new FbConnection(ConnectionStr))
             {
@@ -70,7 +70,18 @@ namespace Victors
 
             }
         }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Dictionary fields, Dictionary filter)
+        public FBClient()
+        {
+
+        }
+        public FBClient(string connectionStr)
+        {
+            ConnectionStr = connectionStr;
+        }
+    }
+    public static class SourceGridUtilities
+    {
+        public static void Fill(SourceGrid.Grid grid, DataTable dt, Dictionary fields, Dictionary filter)
         {
             //Columns filling
             grid.ColumnsCount = fields.isEmpty ? dt.Columns.Count : fields.Count;
@@ -80,7 +91,6 @@ namespace Victors
             {
                 grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.isEmpty ? dt.Columns[i].Caption : fields.Names[i]);
             }
-            MessageBox.Show(fields.Names.ToString());
             //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
             {
@@ -102,7 +112,7 @@ namespace Victors
                 {
                     continue;
                 }
-                    grid.Rows.Insert(r + 1);
+                grid.Rows.Insert(r + 1);
                 for (int i = 0; i < (fields.isEmpty ? dt.Columns.Count : fields.Count); i++)
                 {
                     if (fields.isEmpty)
@@ -115,16 +125,15 @@ namespace Victors
                     }
                 }
             }
-
             grid.AutoSizeCells();
         }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt, Dictionary fields)
+        public static void Fill(SourceGrid.Grid grid, DataTable dt, Dictionary fields)
         {
-            SGridFill(grid, dt, fields, new Dictionary());
+            Fill(grid, dt, fields, new Dictionary());
         }
-        public static void SGridFill(SourceGrid.Grid grid, DataTable dt)
+        public static void Fill(SourceGrid.Grid grid, DataTable dt)
         {
-            SGridFill(grid, dt, new Dictionary(), new Dictionary());
+            Fill(grid, dt, new Dictionary(), new Dictionary());
         }
     }
 }
