@@ -80,6 +80,7 @@ namespace Victors
             {
                 grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.isEmpty ? dt.Columns[i].Caption : fields.Names[i]);
             }
+            MessageBox.Show(fields.Names.ToString());
             //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
             {

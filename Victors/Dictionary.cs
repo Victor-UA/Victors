@@ -136,16 +136,6 @@ namespace Victors
 
             }
         }
-
-        private class test
-        {
-            public Dictionary Dict;
-            public test()
-            {
-                Dict.Items.Add(new DictItem());
-                Dict.Add("Dict", new Dictionary());
-            }
-        }
     }
     public class DictionaryList : List<Dictionary>
     {
