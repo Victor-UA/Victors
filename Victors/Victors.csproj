@@ -74,6 +74,7 @@
       <DependentUpon>DateTimePickerNullable.cs</DependentUpon>
     </Compile>
     <Compile Include="Dictionary.cs" />
+    <Compile Include="SourceGridUtilities.cs" />
     <Compile Include="VFBClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
