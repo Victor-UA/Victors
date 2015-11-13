@@ -68,6 +68,17 @@ namespace Victors
 
             }
         }
+        public dynamic QueryValue(string SQL)
+        {
+            DataTable dt = QueryRecordsList(SQL);
+            if (dt.Columns.Count > 0) {
+                return dt.Rows[0][0];
+            }
+            else
+            {
+                return null;
+            }
+        }
         public FBClient()
         {
 
