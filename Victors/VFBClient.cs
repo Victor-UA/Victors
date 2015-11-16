@@ -79,13 +79,18 @@ namespace Victors
                 return null;
             }
         }
-        public FBClient()
-        {
-
-        }
-        public FBClient(string connectionStr)
+        private void Constructor(string connectionStr)
         {
             ConnectionStr = connectionStr;
         }
+        public FBClient()
+        {
+            Constructor("");
+        }
+        public FBClient(string connectionStr)
+        {
+            Constructor(connectionStr);
+        }
+        
     }
 }
