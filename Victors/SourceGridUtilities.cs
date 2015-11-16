@@ -1,10 +1,28 @@
 ﻿using System.Data;
+using System;
+using Victors;
 
-namespace Victors
+namespace SourceGridUtilities
 {
-    public static class SourceGridUtilities
+    public class RowTag : Object
     {
-        public static void Fill(SourceGrid.Grid grid, DataTable dt, Dictionary fields, Dictionary filter)
+        public int Index { get; set; }
+        public dynamic Key { get; set; }
+        public RowTag(int index, dynamic key)
+        {
+            Index = index;
+            Key = key;
+        }
+        public RowTag()
+        {
+            Index = -1;
+            Key = null;
+        }
+    }
+    public static class Grid
+    {
+        
+        public static void Fill(SourceGrid.Grid grid, DataTable dt, string key, Dictionary fields, Dictionary filter)
         {
             //Columns filling
             grid.ColumnsCount = fields.isEmpty ? dt.Columns.Count : fields.Count;
@@ -14,6 +32,7 @@ namespace Victors
             {
                 grid[0, i] = new SourceGrid.Cells.ColumnHeader(fields.isEmpty ? dt.Columns[i].Caption : fields.Names[i]);
             }
+
             //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
             {
@@ -36,6 +55,14 @@ namespace Victors
                     continue;
                 }
                 grid.Rows.Insert(r + 1);
+                try
+                {
+                    grid.Rows[r + 1].Tag = new RowTag(r, key == "" ? null : dt.Rows[r][key]);
+                }
+                catch
+                {
+                    grid.Rows[r + 1].Tag = new RowTag(r, null);
+                }
                 for (int i = 0; i < (fields.isEmpty ? dt.Columns.Count : fields.Count); i++)
                 {
                     if (fields.isEmpty)
@@ -50,13 +77,17 @@ namespace Victors
             }
             grid.AutoSizeCells();
         }
-        public static void Fill(SourceGrid.Grid grid, DataTable dt, Dictionary fields)
+        public static void Fill(SourceGrid.Grid grid, DataTable dt, string key, Dictionary fields)
         {
-            Fill(grid, dt, fields, new Dictionary());
+            Fill(grid, dt, key, fields, new Dictionary());
+        }
+        public static void Fill(SourceGrid.Grid grid, DataTable dt, string key)
+        {
+            Fill(grid, dt, key, new Dictionary(), new Dictionary());
         }
         public static void Fill(SourceGrid.Grid grid, DataTable dt)
         {
-            Fill(grid, dt, new Dictionary(), new Dictionary());
+            Fill(grid, dt, "", new Dictionary(), new Dictionary());
         }
     }
 }

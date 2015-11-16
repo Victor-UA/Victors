@@ -28,7 +28,7 @@ namespace Test
                 "Дата готовності", "dateorder"
             };
             Dictionary dict = new Dictionary(param);
-            SourceGridUtilities.Fill(grid1, dt, dict);
+            SourceGridUtilities.Grid.Fill(grid1, dt, "orderid", dict);
         }
     }
 }
