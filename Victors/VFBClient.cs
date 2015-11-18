@@ -18,10 +18,9 @@ namespace Victors
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message +
-                        System.IO.Path.GetFileName(
-                        System.Reflection.Assembly.GetExecutingAssembly().Location));
-                    return null;
+                    throw new FBClientException(
+                        ex.Message + "\r" + 
+                        System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location));
                 }
 
                 // Транзакция
@@ -46,12 +45,14 @@ namespace Victors
                 {
                     fbda.Fill(ds);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    MessageBox.Show(ex.Message +
-                        System.IO.Path.GetFileName(
-                        System.Reflection.Assembly.GetExecutingAssembly().Location));
-                    return null;
+                    //return null;
+                    throw new FBClientException(
+                        e.Message + "\r" +
+                        System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\r" +
+                        SQL
+                    );
                 }
 
                 finally
@@ -71,7 +72,7 @@ namespace Victors
         public dynamic QueryValue(string SQL)
         {
             DataTable dt = QueryRecordsList(SQL);
-            if (dt.Columns.Count > 0) {
+            if (dt != null && dt.Columns.Count > 0) {
                 return dt.Rows[0][0];
             }
             else
@@ -92,5 +93,12 @@ namespace Victors
             Constructor(connectionStr);
         }
         
+        
+    }
+    class FBClientException : Exception
+    {
+        public FBClientException(string S) : base(S)
+        {
+        }
     }
 }
