@@ -1,10 +1,11 @@
 ﻿using System.Data;
 using System;
 using Victors;
+using System.Windows.Forms;
 
 namespace SourceGridUtilities
 {
-    public class RowTag : Object
+    public class RowTag : object
     {
         public int Index { get; set; }
         public dynamic Key { get; set; }
@@ -35,7 +36,7 @@ namespace SourceGridUtilities
 
             //Data filling
             for (int r = 0; r < dt.Rows.Count; r++)
-            {
+            { 
                 bool RowChecked = filter.isEmpty || fields.isEmpty;
                 if (!RowChecked)
                 {
@@ -67,11 +68,11 @@ namespace SourceGridUtilities
                 {
                     if (fields.isEmpty)
                     {
-                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i]);
+                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][i] is DBNull ? "" : dt.Rows[r][i]);
                     }
                     else
                     {
-                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][fields[i]]);
+                        grid[r + 1, i] = new SourceGrid.Cells.Cell(dt.Rows[r][fields[i]] is DBNull ? "" : dt.Rows[r][fields[i]]);
                     }
                 }
             }
