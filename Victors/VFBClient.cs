@@ -8,42 +8,95 @@ namespace Victors
     public class FBClient
     {
         public string ConnectionStr { get; set; } = @"character set=WIN1251;data source=localhost;initial catalog=D:\NASTROECHNAYA_2015.GDB ;user id=SYSDBA;password=masterkey";
-        public DataTable QueryRecordsList(string SQL)
+        public void ExecuteSQLCommit(string SQL)
         {
-            using (FbConnection fbc = new FbConnection(ConnectionStr))
+            using (FbConnection fbConnection = new FbConnection(ConnectionStr))
             {
                 try
                 {
-                    fbc.Open();
+                    fbConnection.Open();
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
                     throw new FBClientException(
-                        ex.Message + "\r" + 
+                        e.Message + "\r" +
                         System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location));
                 }
 
                 // Транзакция
-                FbTransactionOptions fbto = new FbTransactionOptions();
-                fbto.TransactionBehavior = FbTransactionBehavior.NoWait |
-                     FbTransactionBehavior.ReadCommitted |
-                     FbTransactionBehavior.RecVersion;
-                FbTransaction fbt = fbc.BeginTransaction(fbto);
+                FbTransactionOptions fbTransactionOptions = new FbTransactionOptions();
+                fbTransactionOptions.TransactionBehavior =
+                    FbTransactionBehavior.NoWait |
+                    FbTransactionBehavior.Write |
+                    FbTransactionBehavior.Autocommit;
+                FbTransaction fbTransaction = fbConnection.BeginTransaction(fbTransactionOptions);
 
                 // Создаем простой запрос
-                FbCommand fbcom = new FbCommand(SQL, fbc, fbt);
+                FbCommand fbCommand = new FbCommand(SQL, fbConnection, fbTransaction);
+                /*
+                fbcom.Parameters.Clear();
+                fbcom.Parameters.AddWithValue("orderno", "362");
+                */
+                try
+                {
+                    fbCommand.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new FBClientException(
+                        e.Message + "\r" +
+                        System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\r" +
+                        SQL.Replace("\n", "")
+                    );
+                }
+                finally
+                {
+                    fbTransaction.Rollback();
+                    fbConnection.Close();
+                    fbCommand.Dispose();
+                    fbTransaction.Dispose();
+                    fbConnection.Dispose();
+                }
+            }
+        }
+
+        public DataTable QueryRecordsList(string SQL)
+        {
+            using (FbConnection fbConnection = new FbConnection(ConnectionStr))
+            {
+                try
+                {
+                    fbConnection.Open();
+                }
+                catch (Exception e)
+                {
+                    throw new FBClientException(
+                        e.Message + "\r" + 
+                        System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+                }
+
+                // Транзакция
+                FbTransactionOptions fbTransactionOptions = new FbTransactionOptions();
+                fbTransactionOptions.TransactionBehavior = 
+                    FbTransactionBehavior.NoWait |
+                    FbTransactionBehavior.ReadCommitted |
+                    FbTransactionBehavior.RecVersion;
+                FbTransaction fbTransaction = fbConnection.BeginTransaction(fbTransactionOptions);
+
+                // Создаем простой запрос
+                FbCommand fbCommand = new FbCommand(SQL, fbConnection, fbTransaction);
                 /*
                 fbcom.Parameters.Clear();
                 fbcom.Parameters.AddWithValue("orderno", "362");
                 */
                 // Создаем адаптер данных
-                FbDataAdapter fbda = new FbDataAdapter(fbcom);
+                FbDataAdapter fbDataAdapter = new FbDataAdapter(fbCommand);
 
-                DataSet ds = new DataSet();
+                DataSet dataset = new DataSet();
 
                 try
                 {
-                    fbda.Fill(ds);
+                    fbDataAdapter.Fill(dataset);
                 }
                 catch (Exception e)
                 {
@@ -51,22 +104,19 @@ namespace Victors
                     throw new FBClientException(
                         e.Message + "\r" +
                         System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\r" +
-                        SQL
+                        SQL.Replace("\n", "")
                     );
                 }
-
                 finally
                 {
-                    fbt.Rollback();
-                    fbc.Close();
-                    fbcom.Dispose();
-                    fbt.Dispose();
-                    fbc.Dispose();
-                    fbda.Dispose();
+                    fbTransaction.Rollback();
+                    fbConnection.Close();
+                    fbCommand.Dispose();
+                    fbTransaction.Dispose();
+                    fbConnection.Dispose();
+                    fbDataAdapter.Dispose();
                 }
-
-                return ds.Tables[0];
-
+                return dataset.Tables[0];
             }
         }
         public dynamic QueryValue(string SQL)
