@@ -21,24 +21,27 @@ namespace Test
         private void TestForm_Load(object sender, EventArgs e)
         {
             FBClient client = new FBClient(@"character set = WIN1251; data source = localhost; initial catalog = D:\NASTROECHNAYA_2015.GDB; user id = SYSDBA; password = masterkey");
-            DataTable dt = client.QueryRecordsList(
-                @"
-select 
-  orderid, 
-  orderno, 
-  dateorder, 
-  agreementdate
---coalesce(cast(agreementdate as datetimetype), '<null>') 
-from orders
-                ");
-            List<dynamic> param = new List<dynamic>
+            DataTable dt = client.QueryRecordsList(qryOrders);
+            Dictionary dict = new Dictionary(new List<dynamic>
             {
-                "Найменування", "orderno",
+                "Номер замовлення", "orderno",
                 "Дата готовності", "dateorder",
-                "Дата договору", "AgreementDate"
-            };
-            Dictionary dict = new Dictionary(param);
+                "Стан", "VORDERSTATENAME",
+                "Клієнт", "VCUSTOMERNAME"
+            });
+            Dictionary filter = new Dictionary(new List<dynamic>
+            {
+                "Дата готовності", "18.01"
+            });
             SourceGridUtilities.Grid.Fill(grid1, dt, "orderid", dict);
+            SourceGridUtilities.Grid.Fill(grid1, dt, "orderid", dict, filter);
         }
+        #region Скрипти SQL
+        private string qryOrders { get; set; } =
+    @"
+select * from vtorders
+where deleted = 0
+            ";
+        #endregion
     }
 }
