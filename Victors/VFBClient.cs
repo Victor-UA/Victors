@@ -40,9 +40,11 @@ namespace Victors
                 try
                 {
                     fbCommand.ExecuteNonQuery();
+                    fbTransaction.Commit();
                 }
                 catch (Exception e)
                 {
+                    fbTransaction.Rollback();
                     throw new FBClientException(
                         e.Message + "\r" +
                         System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\r" +
@@ -51,7 +53,6 @@ namespace Victors
                 }
                 finally
                 {
-                    fbTransaction.Rollback();
                     fbConnection.Close();
                     fbCommand.Dispose();
                     fbTransaction.Dispose();
@@ -97,10 +98,12 @@ namespace Victors
                 try
                 {
                     fbDataAdapter.Fill(dataset);
+                    fbTransaction.Commit();
                 }
                 catch (Exception e)
                 {
                     //return null;
+                    fbTransaction.Rollback();
                     throw new FBClientException(
                         e.Message + "\r" +
                         System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\r" +
@@ -109,7 +112,6 @@ namespace Victors
                 }
                 finally
                 {
-                    fbTransaction.Rollback();
                     fbConnection.Close();
                     fbCommand.Dispose();
                     fbTransaction.Dispose();
@@ -121,13 +123,21 @@ namespace Victors
         }
         public dynamic QueryValue(string SQL)
         {
-            DataTable dt = QueryRecordsList(SQL);
-            if (dt != null && dt.Columns.Count > 0) {
-                return dt.Rows[0][0];
+            try
+            {
+                DataTable dt = QueryRecordsList(SQL);
+                if (dt.Columns.Count > 0) {
+                    return dt.Rows[0][0];
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Exception e)
             {
                 return null;
+                throw new FBClientException(e.Message);
             }
         }
         private void Constructor(string connectionStr)
