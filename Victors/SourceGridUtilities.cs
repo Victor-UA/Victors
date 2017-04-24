@@ -14,11 +14,7 @@ namespace SourceGridUtilities
             Index = index;
             Key = key;
         }
-        public RowTag()
-        {
-            Index = -1;
-            Key = null;
-        }
+        public RowTag() : this(-1, null) { }
     }
     public static class Grid
     {
